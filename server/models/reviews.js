@@ -2,7 +2,7 @@ const {client} = require('../db');
 
 module.exports = {
   getWithProductId: function (productId, callback) {
-    const text = `SELECT r.product_id,r.id AS review_id, r.rating, r.summary,r.recommend,
+    const text = `SELECT r.id AS review_id, r.rating, r.summary,r.recommend,
     r.response, r.body, r.create_date, r.reviewer_name, r.helpfulness,
     COALESCE(json_agg(rp) FILTER (WHERE rp.id IS NOT NULL), '[]')AS photos
     FROM
@@ -25,15 +25,16 @@ module.exports = {
     r.reviewer_email,
     r.response,
     r.helpfulness
-
-
     `;
     const values = [productId];
     client
       .query(text, values)
       .then(res => {
-        let rawData = res.rows;
-        callback(null, res.rows);
+        let dbReview = {'product': productId};
+        dbReview.results = res.rows;
+        // let rawData = res.rows;
+        // console.log(rawData);
+        callback(null, dbReview);
       })
       .catch(e => callback(e, null));
   }
