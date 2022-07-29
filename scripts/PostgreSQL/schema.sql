@@ -62,8 +62,8 @@ SELECT product_id, recommend, count(*) as recommend_count from public.review
 group by product_id, recommend;
 
 CREATE VIEW meta_review_characteristic AS
-SELECT ch.product_id, ch.name, avg(cr.value) as ch_value FROM characteristic as ch
+SELECT ch.id, ch.product_id, ch.name, avg(cr.value) as ch_value FROM characteristic as ch
 join characteristic_review as cr
 on ch.id = cr.characteristic_id
-group by ch.product_id, ch.name
+group by ch.id, ch.product_id, ch.name
 
