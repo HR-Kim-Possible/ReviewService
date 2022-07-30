@@ -10,6 +10,8 @@ module.exports = {
     } else if (sort === 'newest') {
       sortVal = 'r.create_date';
     }
+    count = count || 5;
+    page = page || 0;
     const text = `SELECT r.id AS review_id, r.rating, r.summary, r.recommend,
     r.response, r.body, r.create_date, r.reviewer_name, r.helpfulness,
     COALESCE(json_agg(rp) FILTER (WHERE rp.id IS NOT NULL), '[]')AS photos
@@ -40,9 +42,9 @@ module.exports = {
       .query(text, values)
       .then(res => {
         let dbReview = {'product': productId};
+        dbReview.page = parseInt(page);
+        dbReview.count = parseInt(count);
         dbReview.results = res.rows;
-        // let rawData = res.rows;
-        // console.log(rawData);
         callback(null, dbReview);
       })
       .catch(e => callback(e, null));
@@ -72,16 +74,19 @@ module.exports = {
     }
 
     const queries = [
+      // Update recommend count
       {query: `INSERT INTO public.meta_review_recommend(
         product_id, recommend, recommend_count)
         VALUES (${productId}, ${recommend}, 1)
         ON CONFLICT (product_id, recommend)
         DO UPDATE SET recommend_count = public.meta_review_recommend.recommend_count + 1;`, values: []},
+      // Update rating count
       {query: `INSERT INTO public.meta_review_rating(
         product_id, rating, rating_count)
         VALUES (${productId}, ${rating}, 1)
         ON CONFLICT (product_id, rating)
         DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []},
+      // Update characteristic avg value
       // {query: `INSERT INTO public.meta_review_characteristic(
       //   product_id, rating, rating_count)
       //   VALUES (${productId}, ${rating}, 1)
