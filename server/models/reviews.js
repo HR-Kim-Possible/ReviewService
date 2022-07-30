@@ -87,11 +87,24 @@ module.exports = {
         ON CONFLICT (product_id, rating)
         DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []},
       // Update characteristic avg value
-      // {query: `INSERT INTO public.meta_review_characteristic(
-      //   product_id, rating, rating_count)
-      //   VALUES (${productId}, ${rating}, 1)
-      //   ON CONFLICT (product_id, rating)
-      //   DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []}
+      {query: `
+        UPDATE public.meta_review_characteristic
+        SET
+            ch_value=subquery.ch_value
+        FROM (
+            SELECT ch.id, ch.product_id, ch.name, avg(cr.value) as ch_value
+            FROM characteristic as ch
+            join characteristic_review as cr
+            on ch.id = cr.characteristic_id
+            group by ch.id, ch.product_id, ch.name
+            having ch.product_id = 40348
+        ) AS subquery
+        WHERE
+        public.meta_review_characteristic.id=subquery.id
+        and
+        public.meta_review_characteristic.product_id = subquery.product_id
+        and
+        public.meta_review_characteristic.name = subquery.name`, values: []}
     ];
     const sql = pgp.helpers.concat(queries);
     await db.multi(sql);
