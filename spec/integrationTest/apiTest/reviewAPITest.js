@@ -23,6 +23,7 @@ describe('get review for single product', function() {
 
 describe('post review for single product', function() {
   it('should respond with a 201 status code', async function() {
+    this.timeout(10000);
     const response = await request.post('/reviews/40348')
       .send(
         {
