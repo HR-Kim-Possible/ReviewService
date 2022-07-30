@@ -3,8 +3,14 @@ const {client} = require('../db');
 const {db, pgp} = require('../db');
 
 module.exports = {
-  getWithProductId: function (productId, callback) {
-    const text = `SELECT r.id AS review_id, r.rating, r.summary,r.recommend,
+  getWithProductId: function (productId, sort, count, page, callback) {
+    let sortVal = 'length(r.body)';
+    if (sort === 'helpful') {
+      sortVal = 'r.helpfulness';
+    } else if (sort === 'newest') {
+      sortVal = 'r.create_date';
+    }
+    const text = `SELECT r.id AS review_id, r.rating, r.summary, r.recommend,
     r.response, r.body, r.create_date, r.reviewer_name, r.helpfulness,
     COALESCE(json_agg(rp) FILTER (WHERE rp.id IS NOT NULL), '[]')AS photos
     FROM
@@ -27,6 +33,7 @@ module.exports = {
     r.reviewer_email,
     r.response,
     r.helpfulness
+    ORDER BY ${sortVal} DESC LIMIT ${count} OFFSET ${page}
     `;
     const values = [productId];
     client
