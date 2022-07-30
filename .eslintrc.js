@@ -10,14 +10,15 @@ module.exports = {
     'node': true
   },
   'parserOptions': {
-    'ecmaVersion': 8
+    'ecmaVersion': 11,
+    'sourceType': 'module'
   },
   rules: {
     /* Indentation */
     'no-mixed-spaces-and-tabs': 2,
     'indent': [2, 2],
     /* Variable names */
-    'camelcase': 2,
+    'camelcase': 'off',
     /* Language constructs */
     'curly': 2,
     'eqeqeq': [2, 'smart'],

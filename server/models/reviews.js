@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 const {client} = require('../db');
 const {db, pgp} = require('../db');
 

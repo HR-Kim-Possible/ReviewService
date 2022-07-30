@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 const {db, pgp} = require('../db');
 
 module.exports = {
