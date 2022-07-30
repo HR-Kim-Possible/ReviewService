@@ -1,7 +1,7 @@
 const request = require('supertest')('http://localhost:3000/a');
 var expect = require('chai').expect;
 
-xdescribe('get review for single product', function() {
+describe('get review for single product', function() {
   it('should respond with a 200 status code with no query parameters', async function() {
     const response = await request.get('/reviews/40348');
     expect(response.status).to.eql(200);
@@ -21,7 +21,29 @@ xdescribe('get review for single product', function() {
   });
 });
 
-xdescribe('put review helpful for single product', function() {
+describe('post review for single product', function() {
+  it('should respond with a 201 status code', async function() {
+    const response = await request.post('/reviews/40348')
+      .send(
+        {
+          'product_id': 40348,
+          'rating': 5,
+          'summary': 'eeeee11',
+          'body': 'ccccccc22',
+          'recommend': true,
+          'name': 'Nickname',
+          'email': 'Email@ee.com',
+          'photos': [
+            'http://res.cloudinary.com/dxhzukgow/image/upload/v1659130059/rv6os77efgt5n31okbs51.png'
+          ],
+          'characteristics': { '135001': 5, '135002': 5, '135003': 5, '135004': 5 }
+        }
+      );
+    expect(response.status).to.eql(201);
+  });
+});
+
+describe('put review helpful for single product', function() {
   it('should respond with a 204 status code', async function() {
     const response = await request.put('/reviews/40348/helpful')
       .send({'review_id': 5774953});
@@ -29,7 +51,7 @@ xdescribe('put review helpful for single product', function() {
   });
 });
 
-xdescribe('put review report for single product', function() {
+describe('put review report for single product', function() {
   it('should respond with a 204 status code', async function() {
     const response = await request.put('/reviews/40348/report')
       .send({'review_id': 5774953});
@@ -37,7 +59,7 @@ xdescribe('put review report for single product', function() {
   });
 });
 
-xdescribe('get meta review for single product', function() {
+describe('get meta review for single product', function() {
   it('should respond with a 200 status code with no query parameters', async function() {
     const response = await request.get('/reviews/40348/meta');
     expect(response.status).to.eql(200);
