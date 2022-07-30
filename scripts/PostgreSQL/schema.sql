@@ -29,12 +29,18 @@ CREATE TABLE review_photo (
 ALTER TABLE review_photo ADD CONSTRAINT review_photo_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
 
 
-CREATE TABLE meta_review (
- id SERIAL PRIMARY KEY,
- product_id INTEGER NOT NULL,
- ratings INTEGER NOT NULL,
- recommended VARCHAR(150) NOT NULL
-);
+-- SINGLE meta_review table is a little bit too complicated
+-- CREATE TABLE meta_review (
+--  id SERIAL PRIMARY KEY,
+--  product_id INTEGER NOT NULL,
+--  rating_1 INTEGER NOT NULL DEFAULT 0,
+--  rating_2 INTEGER NOT NULL DEFAULT 0,
+--  rating_3 INTEGER NOT NULL DEFAULT 0,
+--  rating_4 INTEGER NOT NULL DEFAULT 0,
+--  rating_5 INTEGER NOT NULL DEFAULT 0,
+--  recommended_true INTEGER NOT NULL DEFAULT 0,
+--  recommended_false INTEGER NOT NULL DEFAULT 0
+-- );
 
 
 CREATE TABLE characteristic_review (
@@ -57,15 +63,15 @@ ALTER TABLE review
 ALTER COLUMN create_date TYPE timestamp
 USING TO_TIMESTAMP(create_date / 1000) AT TIME ZONE 'Z';
 
-CREATE VIEW meta_review_rating AS
+CREATE TABLE meta_review_rating AS
 SELECT product_id, rating, count(*) as rating_count FROM public.review
 group by product_id, rating;
 
-CREATE VIEW meta_review_recommend AS
+CREATE TABLE meta_review_recommend AS
 SELECT product_id, recommend, count(*) as recommend_count from public.review
 group by product_id, recommend;
 
-CREATE VIEW meta_review_characteristic AS
+CREATE TABLE meta_review_characteristic AS
 SELECT ch.id, ch.product_id, ch.name, avg(cr.value) as ch_value FROM characteristic as ch
 join characteristic_review as cr
 on ch.id = cr.characteristic_id

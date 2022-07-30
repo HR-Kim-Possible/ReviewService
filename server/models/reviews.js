@@ -70,6 +70,26 @@ module.exports = {
         review_id, url)
         VALUES ($1, $2) RETURNING id;`, [res.id, photos[i]]);
     }
+
+    const queries = [
+      {query: `INSERT INTO public.meta_review_recommend(
+        product_id, recommend, recommend_count)
+        VALUES (${productId}, ${recommend}, 1)
+        ON CONFLICT (product_id, recommend)
+        DO UPDATE SET recommend_count = public.meta_review_recommend.recommend_count + 1;`, values: []},
+      {query: `INSERT INTO public.meta_review_rating(
+        product_id, rating, rating_count)
+        VALUES (${productId}, ${rating}, 1)
+        ON CONFLICT (product_id, rating)
+        DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []},
+      // {query: `INSERT INTO public.meta_review_characteristic(
+      //   product_id, rating, rating_count)
+      //   VALUES (${productId}, ${rating}, 1)
+      //   ON CONFLICT (product_id, rating)
+      //   DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []}
+    ];
+    const sql = pgp.helpers.concat(queries);
+    await db.multi(sql);
   },
 
   putHelpful: async function(reviewId) {
