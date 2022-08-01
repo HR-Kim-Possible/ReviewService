@@ -12,7 +12,7 @@ app.use(morgan('tiny'));
 
 app.use('/', routes);
 
-const port = 8080;
+const port = 6246;
 
 app.listen(port, () => {
   console.log(`listening on port ${port}`);
