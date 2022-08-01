@@ -2,7 +2,7 @@ var models = require('../models');
 
 module.exports = {
   getWithProductId: async function (req, res) {
-    const productId = req.params.product_id;
+    const productId = req.query.product_id;
     try {
       const metareview = await models.metaReviews.getWithProductId(productId);
       res.json(metareview);

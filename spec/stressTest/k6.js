@@ -21,7 +21,7 @@ export const options = {
 
 export default function () {
 
-  const res = http.get('http://localhost:3000/a/reviews/40348?sort=newest&count=5&page=1');
+  const res = http.get('http://localhost:3000/reviews/?product_id=40348&sort=newest&count=5&page=1');
 
   sleep(1);
 

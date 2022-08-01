@@ -3,7 +3,7 @@ var models = require('../models');
 module.exports = {
 
   getWithProductId: function (req, res) {
-    const productId = req.params.product_id;
+    const productId = req.query.product_id;
     const sort = req.query.sort;
     const count = req.query.count;
     const page = req.query.page - 1;
@@ -18,10 +18,9 @@ module.exports = {
   },
 
   post: async function (req, res) {
-    const productId = req.params.product_id;
     const body = req.body;
     try {
-      await models.reviews.post(productId, body);
+      await models.reviews.post(body);
       res.status(201).send('Successful add new review!');
     } catch (err) {
       console.error('Unable to add REVIEW to the database: ', err);
@@ -30,7 +29,7 @@ module.exports = {
   },
 
   putHelpful: async function (req, res) {
-    const reviewId = req.body.review_id;
+    const reviewId = req.params.review_id;
     try {
       await models.reviews.putHelpful(reviewId);
       res.status(204).send('Successful add helpful to the review!');
@@ -41,7 +40,8 @@ module.exports = {
   },
 
   putReport: async function (req, res) {
-    const reviewId = req.body.review_id;
+    const reviewId = req.params.review_id;
+    debugger;
     try {
       await models.reviews.putReport(reviewId);
       res.status(204).send('Successful add helpful to the review!');

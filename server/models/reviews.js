@@ -49,7 +49,7 @@ module.exports = {
       .catch(e => callback(e, null));
   },
 
-  post: async function(productId, reqBody) {
+  post: async function(reqBody) {
     let {product_id, rating, summary, body, recommend, name, email, photos, characteristics} = reqBody;
 
     const res = await db.one(`SELECT setval('review_id_seq', max(id)) FROM public.review;
@@ -76,13 +76,13 @@ module.exports = {
       // Update recommend count
       {query: `INSERT INTO public.meta_review_recommend(
         product_id, recommend, recommend_count)
-        VALUES (${productId}, ${recommend}, 1)
+        VALUES (${product_id}, ${recommend}, 1)
         ON CONFLICT (product_id, recommend)
         DO UPDATE SET recommend_count = public.meta_review_recommend.recommend_count + 1;`, values: []},
       // Update rating count
       {query: `INSERT INTO public.meta_review_rating(
         product_id, rating, rating_count)
-        VALUES (${productId}, ${rating}, 1)
+        VALUES (${product_id}, ${rating}, 1)
         ON CONFLICT (product_id, rating)
         DO UPDATE SET rating_count = public.meta_review_rating.rating_count + 1;`, values: []},
       // Update characteristic avg value

@@ -4,11 +4,11 @@ const controllers = require('./controllers');
 
 const routes = Router();
 
-routes.get('/reviews/:product_id', controllers.reviews.getWithProductId);
+routes.get('/reviews/', controllers.reviews.getWithProductId);
 
-routes.get('/reviews/:product_id/meta', controllers.metaReviews.getWithProductId);
+routes.get('/reviews/meta', controllers.metaReviews.getWithProductId);
 
-routes.post('/reviews/:product_id', controllers.reviews.post);
+routes.post('/reviews/', controllers.reviews.post);
 
 routes.put('/reviews/:review_id/helpful', controllers.reviews.putHelpful);
 
