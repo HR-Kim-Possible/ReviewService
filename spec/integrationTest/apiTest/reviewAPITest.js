@@ -1,4 +1,4 @@
-const request = require('supertest')('http://localhost:8080');
+const request = require('supertest')('http://localhost:6246');
 var expect = require('chai').expect;
 
 describe('get review for single product', function() {

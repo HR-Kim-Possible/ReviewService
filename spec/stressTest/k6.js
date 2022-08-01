@@ -4,6 +4,7 @@ import { Counter } from 'k6/metrics';
 
 // https://k6.io/docs/examples/single-request
 // A simple counter for http requests
+// k6 run k6.js
 
 export const requests = new Counter('http_reqs');
 
@@ -11,7 +12,7 @@ export const options = {
   stages: [
     { target: 10, duration: '30s' },
     { target: 100, duration: '30s' },
-    { target: 200, duration: '2m' }
+    { target: 1000, duration: '30s' }
   ],
   thresholds: {
     http_reqs: ['count < 20000'],
@@ -21,7 +22,7 @@ export const options = {
 
 export default function () {
 
-  const res = http.get('http://localhost:8080/reviews/?product_id=40348&sort=newest&count=5&page=1');
+  const res = http.get('http://localhost:6246/reviews/?product_id=40348&sort=newest&count=5&page=1');
 
   sleep(1);
 
