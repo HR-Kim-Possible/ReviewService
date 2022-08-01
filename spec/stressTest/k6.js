@@ -9,19 +9,19 @@ export const requests = new Counter('http_reqs');
 
 export const options = {
   stages: [
-    { target: 20, duration: '30s' },
-    { target: 15, duration: '30s' },
-    { target: 0, duration: '30s' },
+    { target: 10, duration: '30s' },
+    { target: 100, duration: '30s' },
+    { target: 200, duration: '2m' }
   ],
   thresholds: {
-    http_reqs: ['count < 3000'],
+    http_reqs: ['count < 20000'],
     'http_req_duration': ['p(95)<50'],
   },
 };
 
 export default function () {
 
-  const res = http.get('http://localhost:3000/reviews/?product_id=40348&sort=newest&count=5&page=1');
+  const res = http.get('http://localhost:8080/reviews/?product_id=40348&sort=newest&count=5&page=1');
 
   sleep(1);
 

@@ -12,7 +12,7 @@ module.exports = {
     count = count || 5;
     page = page || 0;
     const text = `SELECT r.id AS review_id, r.rating, r.summary, r.recommend,
-    r.response, r.body, r.create_date, r.reviewer_name, r.helpfulness,
+    r.response, r.body, r.create_date as date, r.reviewer_name, r.helpfulness,
     COALESCE(json_agg(rp) FILTER (WHERE rp.id IS NOT NULL), '[]')AS photos
     FROM
     (SELECT * FROM review WHERE product_id = $1) as r
@@ -43,6 +43,11 @@ module.exports = {
         let dbReview = {'product': productId};
         dbReview.page = parseInt(page);
         dbReview.count = parseInt(count);
+        for (let i = 0; i < res.rows.length; i++) {
+          if (res.rows[i].response === 'null') {
+            res.rows[i].response = null;
+          }
+        }
         dbReview.results = res.rows;
         callback(null, dbReview);
       })
