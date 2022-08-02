@@ -1,9 +1,13 @@
-DROP TABLE IF EXISTS review;
-DROP TABLE IF EXISTS review_photo;
-DROP TABLE IF EXISTS meta_review;
+--- step 1
 DROP TABLE IF EXISTS characteristic_review;
+DROP TABLE IF EXISTS review_photo;
 DROP TABLE IF EXISTS characteristic;
+DROP TABLE IF EXISTS meta_review_characteristic;
+DROP TABLE IF EXISTS meta_review_rating;
+DROP TABLE IF EXISTS meta_review_recommend;
+DROP TABLE IF EXISTS review;
 
+--- step 2
 CREATE TABLE review (
  id SERIAL PRIMARY KEY,
  product_id INTEGER NOT NULL,
@@ -19,29 +23,11 @@ CREATE TABLE review (
  helpfulness INTEGER NOT NULL
 );
 
-
 CREATE TABLE review_photo (
  id SERIAL PRIMARY KEY,
  review_id INTEGER NOT NULL,
  url VARCHAR(500) NOT NULL
 );
-
-ALTER TABLE review_photo ADD CONSTRAINT review_photo_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
-
-
--- SINGLE meta_review table is a little bit too complicated
--- CREATE TABLE meta_review (
---  id SERIAL PRIMARY KEY,
---  product_id INTEGER NOT NULL,
---  rating_1 INTEGER NOT NULL DEFAULT 0,
---  rating_2 INTEGER NOT NULL DEFAULT 0,
---  rating_3 INTEGER NOT NULL DEFAULT 0,
---  rating_4 INTEGER NOT NULL DEFAULT 0,
---  rating_5 INTEGER NOT NULL DEFAULT 0,
---  recommended_true INTEGER NOT NULL DEFAULT 0,
---  recommended_false INTEGER NOT NULL DEFAULT 0
--- );
-
 
 CREATE TABLE characteristic_review (
  id SERIAL PRIMARY KEY,
@@ -50,19 +36,13 @@ CREATE TABLE characteristic_review (
  value DECIMAL NOT NULL
 );
 
-ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_characteristic_id_fkey FOREIGN KEY (characteristic_id) REFERENCES characteristic(id);
-ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
-
 CREATE TABLE characteristic (
  id SERIAL PRIMARY KEY,
  product_id INTEGER NOT NULL,
  name VARCHAR(20) NOT NULL
 );
 
-ALTER TABLE review
-ALTER COLUMN create_date TYPE timestamp
-USING TO_TIMESTAMP(create_date / 1000) AT TIME ZONE 'Z';
-
+--- step 4: before this, go to etl.sql, there is step 3 !!!
 CREATE TABLE meta_review_rating AS
 SELECT product_id, rating, count(*) as rating_count FROM public.review
 group by product_id, rating;
@@ -76,4 +56,34 @@ SELECT ch.id, ch.product_id, ch.name, avg(cr.value) as ch_value FROM characteris
 join characteristic_review as cr
 on ch.id = cr.characteristic_id
 group by ch.id, ch.product_id, ch.name
+
+--- step 5
+ALTER TABLE review_photo ADD CONSTRAINT review_photo_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
+ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_characteristic_id_fkey FOREIGN KEY (characteristic_id) REFERENCES characteristic(id);
+ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
+
+ALTER TABLE review
+ALTER COLUMN create_date TYPE timestamp
+USING TO_TIMESTAMP(create_date / 1000) AT TIME ZONE 'Z';
+
+--- step 6
+CREATE INDEX product_id_index ON review (product_id);
+CREATE INDEX review_id_index ON review_photo (review_id);
+CREATE INDEX meta_review_characteristic_product_id_index ON meta_review_characteristic (product_id);
+CREATE INDEX meta_review_rating_product_id_index ON meta_review_rating (product_id);
+CREATE INDEX meta_review_recommend_product_id_index ON meta_review_recommend (product_id);
+ALTER TABLE public.meta_review_recommend
+ADD CONSTRAINT index_unique_meta_review_recommend UNIQUE (product_id, recommend);
+ALTER TABLE public.meta_review_rating
+ADD CONSTRAINT index_unique_meta_review_rating UNIQUE (product_id, rating);
+ALTER TABLE public.meta_review_characteristic
+ADD CONSTRAINT index_unique_meta_review_characteristic UNIQUE (id, product_id);
+CREATE INDEX characteristic_product_id_index ON characteristic (product_id);
+CREATE INDEX characteristic_review_characteristic_id_index ON characteristic_review (characteristic_id);
+
+
+
+
+
+
 

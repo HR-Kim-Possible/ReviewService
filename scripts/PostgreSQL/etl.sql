@@ -1,3 +1,4 @@
+--- step 3
 COPY review
 FROM '/Users/austin/ReviewService/tempCSV/reviews.csv'
 DELIMITER ','
