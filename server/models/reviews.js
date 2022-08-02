@@ -1,4 +1,4 @@
-const {client} = require('../db');
+const {client, pool} = require('../db');
 const {db, pgp} = require('../db');
 
 module.exports = {
@@ -37,7 +37,7 @@ module.exports = {
     ORDER BY ${sortVal} DESC LIMIT ${count} OFFSET ${page}
     `;
     const values = [productId];
-    client
+    pool.connect()
       .query(text, values)
       .then(res => {
         let dbReview = {'product': productId};
