@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS review;
 
 --- step 2
 CREATE TABLE review (
- id SERIAL PRIMARY KEY,
+ id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  product_id INTEGER NOT NULL,
  rating INTEGER NOT NULL,
  create_date bigint NOT NULL,
@@ -24,20 +24,20 @@ CREATE TABLE review (
 );
 
 CREATE TABLE review_photo (
- id SERIAL PRIMARY KEY,
+ id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  review_id INTEGER NOT NULL,
  url VARCHAR(500) NOT NULL
 );
 
 CREATE TABLE characteristic_review (
- id SERIAL PRIMARY KEY,
+ id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  characteristic_id INTEGER NOT NULL,
  review_id INTEGER NOT NULL,
  value DECIMAL NOT NULL
 );
 
 CREATE TABLE characteristic (
- id SERIAL PRIMARY KEY,
+ id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  product_id INTEGER NOT NULL,
  name VARCHAR(20) NOT NULL
 );
@@ -63,7 +63,7 @@ ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_character
 ALTER TABLE characteristic_review ADD CONSTRAINT characteristic_review_review_id_fkey FOREIGN KEY (review_id) REFERENCES review(id);
 
 ALTER TABLE review
-ALTER COLUMN create_date TYPE timestamp
+ALTER COLUMN create_date TYPE timestamp with time zone
 USING TO_TIMESTAMP(create_date / 1000) AT TIME ZONE 'Z';
 
 --- step 6
@@ -80,6 +80,9 @@ ALTER TABLE public.meta_review_characteristic
 ADD CONSTRAINT index_unique_meta_review_characteristic UNIQUE (id, product_id);
 CREATE INDEX characteristic_product_id_index ON characteristic (product_id);
 CREATE INDEX characteristic_review_characteristic_id_index ON characteristic_review (characteristic_id);
+SELECT setval('review_id_seq', max(id)) FROM public.review;
+SELECT setval('characteristic_review_id_seq', max(id)) FROM public.characteristic_review;
+SELECT setval('review_photo_id_seq', max(id)) FROM public.review_photo;
 
 
 

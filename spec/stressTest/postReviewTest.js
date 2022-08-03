@@ -4,13 +4,13 @@ import { Counter } from 'k6/metrics';
 
 // https://k6.io/docs/examples/single-request
 // A simple counter for http requests
-// k6 run k6.js
+// cd into current dir, then k6 run postReviewTest.js
 
 export const requests = new Counter('http_reqs');
 
 export const options = {
   stages: [
-    { target: 10, duration: '20s' },
+    { target: 50, duration: '20s' },
     // { target: 50, duration: '20s' },
     // { target: 500, duration: '20s' }
   ],

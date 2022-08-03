@@ -4,7 +4,7 @@ import { Counter } from 'k6/metrics';
 
 // https://k6.io/docs/examples/single-request
 // A simple counter for http requests
-// k6 run k6.js
+// cd into current dir, then k6 run putReviewHelpfulTest.js
 
 export const requests = new Counter('http_reqs');
 
@@ -20,7 +20,7 @@ export const options = {
 };
 
 export default function () {
-  const res = http.put('http://localhost:6246/reviews/5774953/helpful');
+  const res = http.put('http://localhost:6246/reviews/232096/helpful');
   sleep(1);
   const checkRes = check(res, {
     'status is 204': (r) => r.status === 204

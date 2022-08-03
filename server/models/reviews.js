@@ -38,26 +38,31 @@ module.exports = {
     `;
     const values = [productId];
     pool.connect()
-      .query(text, values)
-      .then(res => {
-        let dbReview = {'product': productId};
-        dbReview.page = parseInt(page);
-        dbReview.count = parseInt(count);
-        for (let i = 0; i < res.rows.length; i++) {
-          if (res.rows[i].response === 'null') {
-            res.rows[i].response = null;
-          }
-        }
-        dbReview.results = res.rows;
-        callback(null, dbReview);
-      })
-      .catch(e => callback(e, null));
+      .then((client) => {
+        client.query(text, values)
+          .then(res => {
+            client.release();
+            let dbReview = {'product': productId};
+            dbReview.page = parseInt(page);
+            dbReview.count = parseInt(count);
+            for (let i = 0; i < res.rows.length; i++) {
+              if (res.rows[i].response === 'null') {
+                res.rows[i].response = null;
+              }
+            }
+            dbReview.results = res.rows;
+            callback(null, dbReview);
+          })
+          .catch(e => {
+            client.release();
+            callback(e, null);
+          });
+      });
   },
 
   post: async function(reqBody) {
     let {product_id, rating, summary, body, recommend, name, email, photos, characteristics} = reqBody;
-
-    const res = await db.one(`SELECT setval('review_id_seq', max(id)) FROM public.review;
+    const res = await db.one(`
             INSERT INTO public.review(
             product_id, rating, create_date, summary, body, recommend, reported, reviewer_name,
             reviewer_email, response, helpfulness)
@@ -65,16 +70,30 @@ module.exports = {
     [product_id, rating, new Date(), summary, body, recommend, 'false', name, email, 'null', 0]);
 
     for (const [key, value] of Object.entries(characteristics)) {
-      await client.query(`INSERT INTO public.characteristic_review(
-        characteristic_id, review_id, value)
-        VALUES ($1, $2, $3);`, [parseInt(key), res.id, value]);
+      pool.connect()
+        .then((client) => {
+          client.query(`
+          INSERT INTO public.characteristic_review(
+          characteristic_id, review_id, value)
+          VALUES (${parseInt(key)}, ${res.id}, ${value});`, [])
+            .then(() => client.release());
+        });
+
+      // await client.query(`
+      //   INSERT INTO public.characteristic_review(
+      //   characteristic_id, review_id, value)
+      //   VALUES (${parseInt(key)}, ${res.id}, ${value});`, []);
     }
 
     for (let i = 0; i < photos.length; i++) {
-      await db.one(`SELECT setval('review_photo_id_seq', max(id)) FROM public.review_photo;
-      INSERT INTO public.review_photo(
-        review_id, url)
-        VALUES ($1, $2) RETURNING id;`, [res.id, photos[i]]);
+      pool.connect()
+        .then((client) => {
+          client.query(`
+          INSERT INTO public.review_photo(
+          review_id, url)
+          VALUES ($1, $2) RETURNING id;`, [res.id, photos[i]])
+            .then(() => client.release());
+        });
     }
 
     const queries = [
